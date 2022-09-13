@@ -1,5 +1,6 @@
 const DomainErrorTranslator = require('../DomainErrorTranslator');
 const InvariantError = require('../InvariantError');
+const AuthenticationError = require('../AuthenticationError');
 
 describe('DomainErrorTranslator', () => {
   it('should translate error correctly', () => {
@@ -11,6 +12,8 @@ describe('DomainErrorTranslator', () => {
       .toStrictEqual(new InvariantError('tidak dapat membuat user baru karena karakter username melebihi batas limit'));
     expect(DomainErrorTranslator.translate(new Error('REGISTER_USER.USERNAME_CONTAIN_RESTRICTED_CHARACTER')))
       .toStrictEqual(new InvariantError('tidak dapat membuat user baru karena username mengandung karakter terlarang'));
+    expect(DomainErrorTranslator.translate(new Error('NEW_THREAD.NOT_DOING_AUTHENTICATION')))
+    .toStrictEqual(new AuthenticationError('tidak dapat menambah thread karena belum login'));
   });
 
   it('should return original error when error message is not needed to translate', () => {
