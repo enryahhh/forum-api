@@ -6,7 +6,7 @@ const ThreadsTableTestHelper = {
       id = 'thread-123', title = 'ini title', body = 'ini body', userId = 'user-123', createdAt = new Date().toISOString()
     }) {
       const query = {
-        text: 'INSERT threads VALUES($1, $2, $3, $4, $5) RETURNING id',
+        text: 'INSERT INTO threads VALUES($1, $2, $3, $4, $5) RETURNING id',
         values: [id, title, body, userId, createdAt],
       };
   
