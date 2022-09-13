@@ -37,7 +37,7 @@ describe('/threads endpoint', () => {
         const responseJson = JSON.parse(response.payload);
         expect(response.statusCode).toEqual(401);
         expect(responseJson.status).toEqual('fail');
-        expect(responseJson.message).toEqual('tidak dapat menambah thread karena belum login');
+        expect(responseJson.message).toEqual('Missing authentication');
       });
 
     it('should response 201 and persisted thread', async () => {
@@ -70,7 +70,6 @@ describe('/threads endpoint', () => {
         payload: requestAuthPayload,
       });
 
-      // console.log();
       const token = tesAuth.result.data.accessToken;
       // eslint-disable-next-line no-undef
 
@@ -86,53 +85,104 @@ describe('/threads endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      // console.log(response);
       expect(response.statusCode).toEqual(201);
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.addedThread).toBeDefined();
     });
 
-    // it('should response 400 when request payload not contain needed property', async () => {
-    //   // Arrange
-    //   const requestPayload = {
-    //     title: 'Ini title'
-    //   };
-    //   const server = await createServer(container);
+    it('should response 400 when request payload not contain needed property', async () => {
+      // Arrange
+      const requestPayload = {
+        title: 'Ini title'
+      };
+      const requestAuthPayload = {
+        username: 'dicoding',
+        password: 'secret',
+      };
+      const server = await createServer(container);
 
-    //   // Action
-    //   const response = await server.inject({
-    //     method: 'POST',
-    //     url: '/threads',
-    //     payload: requestPayload,
-    //   });
+      await server.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          username: 'dicoding',
+          password: 'secret',
+          fullname: 'Dicoding Indonesia',
+        },
+      });
 
-    //   // Assert
-    //   const responseJson = JSON.parse(response.payload);
-    //   expect(response.statusCode).toEqual(400);
-    //   expect(responseJson.status).toEqual('fail');
-    //   expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena properti yang dibutuhkan tidak ada');
-    // });
+      const tesAuth = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: requestAuthPayload,
+      });
 
-    // it('should response 400 when request payload not meet data type specification', async () => {
-    //   // Arrange
-    //   const requestPayload = {
-    //     title: 'Ini title',
-    //     body: true
-    //   };
-    //   const server = await createServer(container);
+      const token = tesAuth.result.data.accessToken;
+      // eslint-disable-next-line no-undef
 
-    //   // Action
-    //   const response = await server.inject({
-    //     method: 'POST',
-    //     url: '/threads',
-    //     payload: requestPayload,
-    //   });
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: requestPayload,
+        headers:{
+          'Authorization' : 'Bearer '+token
+        }
+      });
 
-    //   // Assert
-    //   const responseJson = JSON.parse(response.payload);
-    //   expect(response.statusCode).toEqual(400);
-    //   expect(responseJson.status).toEqual('fail');
-    //   expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena tipe data tidak sesuai');
-    // });
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena properti yang dibutuhkan tidak ada');
+    });
+
+    it('should response 400 when request payload not meet data type specification', async () => {
+      // Arrange
+      const requestPayload = {
+        title: 'Ini title',
+        body: true
+      };
+      const requestAuthPayload = {
+        username: 'dicoding',
+        password: 'secret',
+      };
+      const server = await createServer(container);
+
+      await server.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          username: 'dicoding',
+          password: 'secret',
+          fullname: 'Dicoding Indonesia',
+        },
+      });
+
+      const tesAuth = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: requestAuthPayload,
+      });
+
+      const token = tesAuth.result.data.accessToken;
+      // eslint-disable-next-line no-undef
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: requestPayload,
+        headers:{
+          'Authorization' : 'Bearer '+token
+        }
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena tipe data tidak sesuai');
+    });
   });
 });

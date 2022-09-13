@@ -12,8 +12,6 @@ class ThreadsHandler {
         const auth = request.auth.credentials;
         const useCasePayload = request.payload;
         const addedThread = await addThreadUseCase.execute({useCasePayload,auth});
-        console.log('ini addedThread');
-        console.log(addedThread);
         const response = h.response({
           status: 'success',
           data: {

@@ -34,14 +34,13 @@ describe('ThreadRepository postgres', () => {
 
       // Action
       const result = await threadRepository.addThread(newThread);
-      // console.log(result);
 
       // Assert
       const addedThread = result;
       expect(addedThread).toStrictEqual({
         id: 'thread-123',
         title: 'ini title',
-        user_id: userId
+        owner: userId
       });
     });
   });

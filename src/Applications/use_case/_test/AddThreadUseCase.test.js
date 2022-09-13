@@ -28,7 +28,6 @@ describe('AddThreadUseCase', () => {
             const getAddThreadUseCase = new AddThreadUseCase({
                 threadRepository: mockThreadRepository,
             });
-            console.log({useCasePayload,auth});
             const actualAddThread = await getAddThreadUseCase.execute({useCasePayload,auth});
 
             expect(actualAddThread).toEqual(expectedThread);
