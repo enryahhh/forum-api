@@ -5,6 +5,7 @@ const ThreadsTableTestHelper = {
     async addThread({
       id = 'thread-123', title = 'ini title', body = 'ini body', userId = 'user-123', createdAt = new Date().toISOString()
     }) {
+      console.log(title);
       const query = {
         text: 'INSERT INTO threads VALUES($1, $2, $3, $4, $5) RETURNING id',
         values: [id, title, body, userId, createdAt],
@@ -15,11 +16,12 @@ const ThreadsTableTestHelper = {
   
     async findThreadsById(id) {
       const query = {
-        text: 'SELECT * FROM threads WHERE id = $1',
+        text: `SELECT * FROM threads WHERE id = $1`,
         values: [id],
       };
   
       const result = await pool.query(query);
+      console.log(result.rows[0]);
       return result.rows;
     },
   

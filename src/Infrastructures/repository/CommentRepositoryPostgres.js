@@ -10,7 +10,6 @@ class CommentRepositoryPostgres extends CommentRepository {
       }
 
       async addComment(payload){
-        console.log(payload);
         const id = `comment-${this._idGenerator()}`;
         const { content, threadId, userId } = payload;
         const isDeleted = false;

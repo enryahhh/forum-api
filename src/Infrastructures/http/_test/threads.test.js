@@ -185,4 +185,146 @@ describe('/threads endpoint', () => {
       expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena tipe data tidak sesuai');
     });
   });
+
+  describe('when POST /threads/{threadId}/comments', () => {
+    let token = '';
+    let threadId = '';
+    beforeEach(async ()=>{
+      // await UsersTableTestHelper.addUser({id:'user-123'});
+      const requestPayload = {
+        title:'ini title',
+        body:'ini body'
+      };
+
+      // Arrange
+      const requestAuthPayload = {
+        username: 'dicoding',
+        password: 'secret',
+      };
+      // add user
+      const server = await createServer(container);
+      await server.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          username: 'dicoding',
+          password: 'secret',
+          fullname: 'Dicoding Indonesia',
+        },
+      });
+
+      const tesAuth = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: requestAuthPayload,
+      });
+
+      token = tesAuth.result.data.accessToken;
+      // eslint-disable-next-line no-undef
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: requestPayload,
+        headers:{
+          'Authorization' : 'Bearer '+token
+        }
+      });
+      const responseJson = JSON.parse(response.payload);
+      threadId = responseJson.data.addedThread.id;
+    })
+
+    it('should response 401 when no authentication', async () => {
+      // Arrange
+      const requestPayload = {
+        content:'ini komentar',
+      };
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: requestPayload,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('Missing authentication');
+    });
+
+    it('should response 404 when thread not found', async () => {
+      // Arrange
+      console.log(token);
+      const requestPayload = {
+        content:'ini komentar',
+      };
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads/xxx/comments',
+        payload: requestPayload,
+        headers:{
+          'Authorization' : 'Bearer '+token
+        }
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('thread tidak ditemukan');
+    });
+
+    it('should response 400 when payload invalid', async () => {
+      // Arrange
+      const requestPayload = {};
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: requestPayload,
+        headers:{
+          'Authorization' : 'Bearer '+token
+        }
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('tidak dapat melakukan komentar karena properti yang dibutuhkan tidak ada');
+    });
+
+    it('should response 201 when added comment', async () => {
+      // Arrange
+      const requestPayload = {
+        content:'ini komentar',
+      };
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: requestPayload,
+        headers:{
+          'Authorization' : 'Bearer '+token
+        }
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(201);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data.addedComment).toBeDefined();
+    });
+  });
 });

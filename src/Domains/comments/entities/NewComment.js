@@ -7,7 +7,6 @@ class NewComment {
   
     _verifyPayload(payload) {
       const { content } = payload;
-      console.log(payload);
   
       if (!content) {
         throw new Error('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
