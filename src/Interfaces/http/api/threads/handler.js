@@ -50,11 +50,11 @@ class ThreadsHandler {
   async getDetailThreadHandler(request, h) {
     const getThreadDetailUseCase = this._container.getInstance(GetThreadUseCase.name);
     const { threadId } = request.params;
-    const data = await getThreadDetailUseCase.execute(threadId);
-    console.log(data);
+    const thread = await getThreadDetailUseCase.execute(threadId);
+    console.log(thread);
     const response = h.response({
       status: 'success',
-      data
+      data: thread
     });
     response.code(200);
     return response;

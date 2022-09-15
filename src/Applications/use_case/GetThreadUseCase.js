@@ -7,13 +7,13 @@ class GetThreadUseCase {
     async execute(params) {
         console.log(params);
       const threadId = params;
-      const thread = await this._threadRepository.findThreadById(threadId);
+      const threadresult = await this._threadRepository.findThreadById(threadId);
       const comments = await this._commentRepository.findCommentByThread(threadId);
-      const data = {
-        thread,
+      const thread = {
+        ...threadresult,
         comments
       };
-      console.log(data);
+      const data = {thread};
       return data;
     }
   

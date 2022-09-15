@@ -78,7 +78,7 @@ describe('ThreadRepository postgres', () => {
         id: 'thread-123',
         title: 'ini title',
         body: 'ini body',
-        owner: 'dicoding',
+        username: 'dicoding',
         date: "2021-08-08T07:19:09.775Z",
       });
     });

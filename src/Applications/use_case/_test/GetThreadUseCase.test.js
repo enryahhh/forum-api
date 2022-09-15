@@ -41,14 +41,14 @@ describe('GetThreadUseCase', () => {
                     title: "sebuah thread",
                     body: "sebuah body thread",
                     date: "2021-08-08T07:19:09.775Z",
-                    username: "dicoding"
-                },
+                    username: "dicoding",
                 comments:[{
                     id: "comment-123",
                     username: "johndoe",
                     date: "2021-08-08T07:22:33.555Z",
                     content: "sebuah comment"
                 }]
+               },
             });
             expect(mockThreadRepository.findThreadById)
             .toBeCalledWith('thread-123');

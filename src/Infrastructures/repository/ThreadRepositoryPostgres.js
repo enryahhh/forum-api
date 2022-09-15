@@ -24,7 +24,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 
       async findThreadById(threadId){
         const query = {
-          text: `SELECT threads.id,threads.title,threads.body,threads.created_at AS date, users.username AS owner 
+          text: `SELECT threads.id,threads.title,threads.body,threads.created_at AS date, users.username 
                  FROM threads JOIN users ON threads.user_id = users.id WHERE threads.id = $1`,
           // SELECT comments.*, users.username FROM comments JOIN users ON comments.user_id = users.id WHERE comments.thread_id = $1
           // text: `SELECT users.username,threads.title,comments.* FROM threads LEFT JOIN comments ON threads.id = comments.thread_id 
