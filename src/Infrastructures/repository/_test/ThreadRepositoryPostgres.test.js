@@ -3,6 +3,7 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const pool = require('../../database/postgres/pool');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
@@ -50,6 +51,36 @@ describe('ThreadRepository postgres', () => {
 
       // Action & Assert
       await expect(threadRepositoryPostgres.findThreadById('123')).rejects.toThrowError(NotFoundError);
+    });
+
+  });
+
+  describe('findThreadById function', () => {
+    it('should throw NotFoundError when thread not found', async () => {
+      // Arrange
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(threadRepositoryPostgres.findThreadById('thread-123')).rejects.toThrowError(NotFoundError);
+    });
+
+    it('should return thread data correctly', async () => {
+      // Arrange
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'dicoding' });
+      // await UsersTableTestHelper.addUser({ id: 'user-321', username: 'dicoding2' });
+      await ThreadsTableTestHelper.addThread({ id:'thread-123' });
+      // await CommentsTableTestHelper.addComment({ id:'comment-123' });
+      // await CommentsTableTestHelper.addComment({ id:'comment-124',userId:'user-321' });
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
+      const thread = await threadRepositoryPostgres.findThreadById('thread-123');
+      // Action & Assert
+      expect(thread).toStrictEqual({
+        id: 'thread-123',
+        title: 'ini title',
+        body: 'ini body',
+        owner: 'dicoding',
+        date: "2021-08-08T07:19:09.775Z",
+      });
     });
 
   });

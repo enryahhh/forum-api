@@ -1,6 +1,7 @@
 const pool = require('../../database/postgres/pool');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
@@ -11,6 +12,7 @@ describe('/threads endpoint', () => {
   });
 
   afterEach(async () => {
+    await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await AuthenticationsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
@@ -258,7 +260,6 @@ describe('/threads endpoint', () => {
 
     it('should response 404 when thread not found', async () => {
       // Arrange
-      console.log(token);
       const requestPayload = {
         content:'ini komentar',
       };
@@ -325,6 +326,29 @@ describe('/threads endpoint', () => {
       expect(response.statusCode).toEqual(201);
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.addedComment).toBeDefined();
+    });
+  });
+
+  describe('when GET /threads/{threadId}', () => {
+    it('should response 200 when get thread',async () => {
+      //arrange
+      await UsersTableTestHelper.addUser({id:'user-123'});
+      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      await CommentsTableTestHelper.addComment({id:'comment-123'});
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      //action
+      const response = await server.inject({
+        method: 'GET',
+        url: `/threads/thread-123`
+      });
+
+      //assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data.thread).toBeDefined();
     });
   });
 });

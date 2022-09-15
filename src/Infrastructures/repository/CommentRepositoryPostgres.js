@@ -23,6 +23,17 @@ class CommentRepositoryPostgres extends CommentRepository {
           return result.rows[0];
       }
 
+      async findCommentByThread(threadId) {
+        const query = {
+          text: `SELECT comments.id,users.username,comments.created_at AS date,CASE WHEN comments.is_deleted=true THEN '**komentar telah dihapus**' ELSE comments.content END AS content 
+                 FROM comments JOIN users ON comments.user_id = users.id WHERE comments.thread_id = $1`,
+          values: [threadId],
+        };
+    
+        const result = await this._pool.query(query);
+        return result.rows;
+      }
+
       async deleteComment(params) {
         const { id, threadId } = params;
         const query = {

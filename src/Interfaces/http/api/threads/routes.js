@@ -15,14 +15,11 @@ const routes = (handler) => ([
         auth: 'forumapi_jwt',
       },
     },
-    // {
-    //     method: 'GET',
-    //     path: '/threads/{threadId}',
-    //     handler: handler.getSingleThreadHandler,
-    //     options: {
-    //         auth: 'forumapi_jwt',
-    //       },
-    //    },
+    {
+        method: 'GET',
+        path: '/threads/{threadId}',
+        handler: handler.getDetailThreadHandler,
+       },
     {
      method: 'DELETE',
      path: '/threads/{threadId}/comments/{commentId}',

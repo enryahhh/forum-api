@@ -10,7 +10,7 @@ const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 
-describe('UserRepositoryPostgres', () => {
+describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
@@ -48,6 +48,23 @@ describe('UserRepositoryPostgres', () => {
         content: 'ini komentar',
         owner: userId,
       });
+    }); 
+  });
+
+  describe('findCommentByThread function', () => {
+    it('should return comment data by thread correctly', async () => {
+      // Arrange
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'dicoding' });
+      await ThreadsTableTestHelper.addThread({ id:'thread-123' });
+      await CommentsTableTestHelper.addComment({ id:'comment-123' });
+      await CommentsTableTestHelper.addComment({ id:'comment-124'});
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool,{});
+      
+      // Action
+      const comments = await commentRepositoryPostgres.findCommentByThread('thread-123');
+      console.log(comments);
+      // Assert
+      expect(comments).toHaveLength(2);
     }); 
   });
 
