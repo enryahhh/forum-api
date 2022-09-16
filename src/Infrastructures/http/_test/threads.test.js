@@ -12,6 +12,34 @@ describe('/threads endpoint', () => {
     await pool.end();
   });
 
+    let token = '';
+    beforeEach(async ()=>{
+      // Arrange
+      const requestAuthPayload = {
+        username: 'dicoding',
+        password: 'secret',
+      };
+      // add user
+      const server = await createServer(container);
+      await server.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          username: 'dicoding',
+          password: 'secret',
+          fullname: 'Dicoding Indonesia',
+        },
+      });
+
+      const tesAuth = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: requestAuthPayload,
+      });
+
+      token = tesAuth.result.data.accessToken;
+    });
+
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
@@ -49,32 +77,7 @@ describe('/threads endpoint', () => {
         title:'ini title',
         body:'ini body'
       };
-
-      // Arrange
-      const requestAuthPayload = {
-        username: 'dicoding',
-        password: 'secret',
-      };
-      // add user
       const server = await createServer(container);
-      await server.inject({
-        method: 'POST',
-        url: '/users',
-        payload: {
-          username: 'dicoding',
-          password: 'secret',
-          fullname: 'Dicoding Indonesia',
-        },
-      });
-
-      const tesAuth = await server.inject({
-        method: 'POST',
-        url: '/authentications',
-        payload: requestAuthPayload,
-      });
-
-      const token = tesAuth.result.data.accessToken;
-      // eslint-disable-next-line no-undef
 
       // Action
       const response = await server.inject({
@@ -98,30 +101,7 @@ describe('/threads endpoint', () => {
       const requestPayload = {
         title: 'Ini title'
       };
-      const requestAuthPayload = {
-        username: 'dicoding',
-        password: 'secret',
-      };
       const server = await createServer(container);
-
-      await server.inject({
-        method: 'POST',
-        url: '/users',
-        payload: {
-          username: 'dicoding',
-          password: 'secret',
-          fullname: 'Dicoding Indonesia',
-        },
-      });
-
-      const tesAuth = await server.inject({
-        method: 'POST',
-        url: '/authentications',
-        payload: requestAuthPayload,
-      });
-
-      const token = tesAuth.result.data.accessToken;
-      // eslint-disable-next-line no-undef
 
       // Action
       const response = await server.inject({
@@ -146,30 +126,8 @@ describe('/threads endpoint', () => {
         title: 'Ini title',
         body: true
       };
-      const requestAuthPayload = {
-        username: 'dicoding',
-        password: 'secret',
-      };
+      
       const server = await createServer(container);
-
-      await server.inject({
-        method: 'POST',
-        url: '/users',
-        payload: {
-          username: 'dicoding',
-          password: 'secret',
-          fullname: 'Dicoding Indonesia',
-        },
-      });
-
-      const tesAuth = await server.inject({
-        method: 'POST',
-        url: '/authentications',
-        payload: requestAuthPayload,
-      });
-
-      const token = tesAuth.result.data.accessToken;
-      // eslint-disable-next-line no-undef
 
       // Action
       const response = await server.inject({
@@ -190,59 +148,16 @@ describe('/threads endpoint', () => {
   });
 
   describe('when POST /threads/{threadId}/comments', () => {
-    let token = '';
-    let threadId = '';
-    beforeEach(async ()=>{
-      // await UsersTableTestHelper.addUser({id:'user-123'});
-      const requestPayload = {
-        title:'ini title',
-        body:'ini body'
-      };
-
-      // Arrange
-      const requestAuthPayload = {
-        username: 'dicoding',
-        password: 'secret',
-      };
-      // add user
-      const server = await createServer(container);
-      await server.inject({
-        method: 'POST',
-        url: '/users',
-        payload: {
-          username: 'dicoding',
-          password: 'secret',
-          fullname: 'Dicoding Indonesia',
-        },
-      });
-
-      const tesAuth = await server.inject({
-        method: 'POST',
-        url: '/authentications',
-        payload: requestAuthPayload,
-      });
-
-      token = tesAuth.result.data.accessToken;
-      // eslint-disable-next-line no-undef
-
-      // Action
-      const response = await server.inject({
-        method: 'POST',
-        url: '/threads',
-        payload: requestPayload,
-        headers:{
-          'Authorization' : 'Bearer '+token
-        }
-      });
-      const responseJson = JSON.parse(response.payload);
-      threadId = responseJson.data.addedThread.id;
-    })
+    
 
     it('should response 401 when no authentication', async () => {
       // Arrange
       const requestPayload = {
         content:'ini komentar',
       };
+      await UsersTableTestHelper.addUser({id:'user-123',username:'lingjul'});
+      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      const threadId = 'thread-123';
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
       // Action
@@ -264,6 +179,8 @@ describe('/threads endpoint', () => {
       const requestPayload = {
         content:'ini komentar',
       };
+      await UsersTableTestHelper.addUser({id:'user-123',username:'lingjul'});
+      await ThreadsTableTestHelper.addThread({id:'thread-123'});
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
       // Action
@@ -286,6 +203,9 @@ describe('/threads endpoint', () => {
     it('should response 400 when payload invalid', async () => {
       // Arrange
       const requestPayload = {};
+      await UsersTableTestHelper.addUser({id:'user-123',username:'lingjul'});
+      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      const threadId = 'thread-123';
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
       // Action
@@ -310,6 +230,9 @@ describe('/threads endpoint', () => {
       const requestPayload = {
         content:'ini komentar',
       };
+      await UsersTableTestHelper.addUser({id:'user-123',username:'lingjul'});
+      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      const threadId = 'thread-123';
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
       // Action
@@ -333,7 +256,7 @@ describe('/threads endpoint', () => {
   describe('when GET /threads/{threadId}', () => {
     it('should response 200 when get thread',async () => {
       //arrange
-      await UsersTableTestHelper.addUser({id:'user-123'});
+      await UsersTableTestHelper.addUser({id:'user-123',username:'lingjul'});
       await ThreadsTableTestHelper.addThread({id:'thread-123'});
       await CommentsTableTestHelper.addComment({id:'comment-123'});
       // eslint-disable-next-line no-undef
@@ -354,58 +277,12 @@ describe('/threads endpoint', () => {
   });
 
   describe('when DELETE /threads/{threadId}/comments/{commentId}', () => {
-    let token = '';
-    let threadId = '';
-    beforeEach(async ()=>{
-      // await UsersTableTestHelper.addUser({id:'user-123'});
-      const requestPayload = {
-        title:'ini title',
-        body:'ini body'
-      };
 
-      // Arrange
-      const requestAuthPayload = {
-        username: 'dicoding',
-        password: 'secret',
-      };
-      // add user
-      const server = await createServer(container);
-      await server.inject({
-        method: 'POST',
-        url: '/users',
-        payload: {
-          username: 'dicoding',
-          password: 'secret',
-          fullname: 'Dicoding Indonesia',
-        },
-      });
-
-      const tesAuth = await server.inject({
-        method: 'POST',
-        url: '/authentications',
-        payload: requestAuthPayload,
-      });
-
-      token = tesAuth.result.data.accessToken;
-      // eslint-disable-next-line no-undef
-
-      // Action
-      const response = await server.inject({
-        method: 'POST',
-        url: '/threads',
-        payload: requestPayload,
-        headers:{
-          'Authorization' : 'Bearer '+token
-        }
-      });
-      const responseJson = JSON.parse(response.payload);
-      threadId = responseJson.data.addedThread.id;
-    })
-
-    it('should response 403 when no authentication',async () => {
+    it('should response 401 when no authentication',async () => {
       //arrange
       await UsersTableTestHelper.addUser({ id:'user-123',username:'lingjul' });
       await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      const threadId = 'thread-123';
       await CommentsTableTestHelper.addComment({id:'comment-123',threadId:'thread-123'});
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
@@ -430,8 +307,8 @@ describe('/threads endpoint', () => {
       //arrange
       await UsersTableTestHelper.addUser({ id:'user-123',username:'lingjul' });
       await ThreadsTableTestHelper.addThread({id:'thread-123'});
-      const decodedToken = await container.getInstance(AuthenticationTokenManager.name).decodePayload(token);
-      await CommentsTableTestHelper.addComment({id:'comment-123',userId:decodedToken.id,threadId:threadId});
+      const threadId = 'thread-123';
+      await CommentsTableTestHelper.addComment({id:'comment-123',threadId:threadId});
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
 
@@ -439,20 +316,24 @@ describe('/threads endpoint', () => {
       const response = await server.inject({
         method: 'DELETE',
         url: `/threads/${threadId}/comments/comment-123`,
+        headers:{
+          'Authorization' : 'Bearer '+token
+        }
       });
 
       //assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(401);
+      expect(response.statusCode).toEqual(403);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).not.toEqual('');
     });
 
     it('should response 404 when comment not found',async () => {
       //arrange
-      await UsersTableTestHelper.addUser({ id:'user-123',username:'lingjul' });
-      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      // await UsersTableTestHelper.addUser({ id:'user-123',username:'lingjul' });
       const decodedToken = await container.getInstance(AuthenticationTokenManager.name).decodePayload(token);
+      await ThreadsTableTestHelper.addThread({id:'thread-123',userId:decodedToken.id});
+      const threadId = 'thread-123';
       await CommentsTableTestHelper.addComment({id:'comment-123',userId:decodedToken.id,threadId:threadId});
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
@@ -475,8 +356,9 @@ describe('/threads endpoint', () => {
 
     it('should response 200 when delete thread',async () => {
       //arrange
-      // await ThreadsTableTestHelper.addThread({id:'thread-123'});
       const decodedToken = await container.getInstance(AuthenticationTokenManager.name).decodePayload(token);
+      await ThreadsTableTestHelper.addThread({id:'thread-123',userId:decodedToken.id});
+      const threadId = 'thread-123';
       await CommentsTableTestHelper.addComment({id:'comment-123',userId:decodedToken.id,threadId:threadId});
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
