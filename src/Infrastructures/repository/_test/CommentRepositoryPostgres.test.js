@@ -62,7 +62,6 @@ describe('CommentRepositoryPostgres', () => {
       
       // Action
       const comments = await commentRepositoryPostgres.findCommentByThread('thread-123');
-      console.log(comments);
       // Assert
       expect(comments).toHaveLength(2);
     }); 

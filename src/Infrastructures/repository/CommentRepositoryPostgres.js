@@ -37,7 +37,7 @@ class CommentRepositoryPostgres extends CommentRepository {
       async deleteComment(params) {
         const { id, threadId } = params;
         const query = {
-          text: 'UPDATE comments SET is_deleted = true WHERE id = $1 AND thread_id = $2 RETURNING id',
+          text: 'UPDATE comments SET is_deleted = TRUE WHERE id = $1 AND thread_id = $2 RETURNING id',
           values: [id, threadId],
         };
     
@@ -56,6 +56,9 @@ class CommentRepositoryPostgres extends CommentRepository {
             };
         
             const result = await this._pool.query(query);
+            if(!result.rowCount){
+              throw new NotFoundError('Gagal hapus. Komentar tidak ditemukan');
+            }
             const { user_id } = result.rows[0];
             if(owner !== user_id) {
                throw new AuthorizationError('anda tidak berhak mengakses resource ini');

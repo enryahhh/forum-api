@@ -3,6 +3,7 @@ const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
+const AuthenticationTokenManager = require('../../../Applications/security/AuthenticationTokenManager');
 const container = require('../../container');
 const createServer = require('../createServer');
 
@@ -349,6 +350,150 @@ describe('/threads endpoint', () => {
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.thread).toBeDefined();
+    });
+  });
+
+  describe('when DELETE /threads/{threadId}/comments/{commentId}', () => {
+    let token = '';
+    let threadId = '';
+    beforeEach(async ()=>{
+      // await UsersTableTestHelper.addUser({id:'user-123'});
+      const requestPayload = {
+        title:'ini title',
+        body:'ini body'
+      };
+
+      // Arrange
+      const requestAuthPayload = {
+        username: 'dicoding',
+        password: 'secret',
+      };
+      // add user
+      const server = await createServer(container);
+      await server.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          username: 'dicoding',
+          password: 'secret',
+          fullname: 'Dicoding Indonesia',
+        },
+      });
+
+      const tesAuth = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: requestAuthPayload,
+      });
+
+      token = tesAuth.result.data.accessToken;
+      // eslint-disable-next-line no-undef
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: requestPayload,
+        headers:{
+          'Authorization' : 'Bearer '+token
+        }
+      });
+      const responseJson = JSON.parse(response.payload);
+      threadId = responseJson.data.addedThread.id;
+    })
+
+    it('should response 403 when no authentication',async () => {
+      //arrange
+      await UsersTableTestHelper.addUser({ id:'user-123',username:'lingjul' });
+      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      await CommentsTableTestHelper.addComment({id:'comment-123',threadId:'thread-123'});
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      //action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/comment-123`,
+        headers:{
+          'Authorization' : 'Bearer '+token
+        }
+      });
+
+      //assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).not.toEqual('');
+    });
+
+    it('should response 403 when wrong owner',async () => {
+      //arrange
+      await UsersTableTestHelper.addUser({ id:'user-123',username:'lingjul' });
+      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      const decodedToken = await container.getInstance(AuthenticationTokenManager.name).decodePayload(token);
+      await CommentsTableTestHelper.addComment({id:'comment-123',userId:decodedToken.id,threadId:threadId});
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      //action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/comment-123`,
+      });
+
+      //assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).not.toEqual('');
+    });
+
+    it('should response 404 when comment not found',async () => {
+      //arrange
+      await UsersTableTestHelper.addUser({ id:'user-123',username:'lingjul' });
+      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      const decodedToken = await container.getInstance(AuthenticationTokenManager.name).decodePayload(token);
+      await CommentsTableTestHelper.addComment({id:'comment-123',userId:decodedToken.id,threadId:threadId});
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      //action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/comment-1234`,
+        headers:{
+          'Authorization' : 'Bearer '+token
+        }
+      });
+
+      //assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).not.toEqual('');
+    });
+
+    it('should response 200 when delete thread',async () => {
+      //arrange
+      // await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      const decodedToken = await container.getInstance(AuthenticationTokenManager.name).decodePayload(token);
+      await CommentsTableTestHelper.addComment({id:'comment-123',userId:decodedToken.id,threadId:threadId});
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      //action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/comment-123`,
+        headers:{
+          'Authorization' : 'Bearer '+token
+        }
+      });
+
+      //assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
     });
   });
 });
