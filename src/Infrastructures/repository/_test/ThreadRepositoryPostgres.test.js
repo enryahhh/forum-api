@@ -1,9 +1,7 @@
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
-const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
-const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const pool = require('../../database/postgres/pool');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
@@ -29,17 +27,17 @@ describe('ThreadRepository postgres', () => {
       const userId = await userRepositoryPostgres.getIdByUsername('dicoding');
 
       const threadRepository = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
-      const newThread = new NewThread({title:'ini title', body:'ini body'});
+      const newThread = new NewThread({ title: 'ini title', body: 'ini body' });
 
       // Action
-      const result = await threadRepository.addThread({...newThread,userId});
+      const result = await threadRepository.addThread({ ...newThread, userId });
 
       // Assert
       const addedThread = result;
       expect(addedThread).toStrictEqual({
         id: 'thread-123',
         title: 'ini title',
-        owner: userId
+        owner: userId,
       });
     });
   });
@@ -52,7 +50,6 @@ describe('ThreadRepository postgres', () => {
       // Action & Assert
       await expect(threadRepositoryPostgres.findThreadById('123')).rejects.toThrowError(NotFoundError);
     });
-
   });
 
   describe('findThreadById function', () => {
@@ -68,7 +65,7 @@ describe('ThreadRepository postgres', () => {
       // Arrange
       await UsersTableTestHelper.addUser({ id: 'user-123', username: 'dicoding' });
       // await UsersTableTestHelper.addUser({ id: 'user-321', username: 'dicoding2' });
-      await ThreadsTableTestHelper.addThread({ id:'thread-123' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
       // await CommentsTableTestHelper.addComment({ id:'comment-123' });
       // await CommentsTableTestHelper.addComment({ id:'comment-124',userId:'user-321' });
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
@@ -79,10 +76,8 @@ describe('ThreadRepository postgres', () => {
         title: 'ini title',
         body: 'ini body',
         username: 'dicoding',
-        date: "2021-08-08T07:19:09.775Z",
+        date: '2021-08-08T07:19:09.775Z',
       });
     });
-
   });
-
 });

@@ -12,33 +12,33 @@ describe('/threads endpoint', () => {
     await pool.end();
   });
 
-    let token = '';
-    beforeEach(async ()=>{
-      // Arrange
-      const requestAuthPayload = {
+  let token = '';
+  beforeEach(async () => {
+    // Arrange
+    const requestAuthPayload = {
+      username: 'dicoding',
+      password: 'secret',
+    };
+      // add user
+    const server = await createServer(container);
+    await server.inject({
+      method: 'POST',
+      url: '/users',
+      payload: {
         username: 'dicoding',
         password: 'secret',
-      };
-      // add user
-      const server = await createServer(container);
-      await server.inject({
-        method: 'POST',
-        url: '/users',
-        payload: {
-          username: 'dicoding',
-          password: 'secret',
-          fullname: 'Dicoding Indonesia',
-        },
-      });
-
-      const tesAuth = await server.inject({
-        method: 'POST',
-        url: '/authentications',
-        payload: requestAuthPayload,
-      });
-
-      token = tesAuth.result.data.accessToken;
+        fullname: 'Dicoding Indonesia',
+      },
     });
+
+    const tesAuth = await server.inject({
+      method: 'POST',
+      url: '/authentications',
+      payload: requestAuthPayload,
+    });
+
+    token = tesAuth.result.data.accessToken;
+  });
 
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
@@ -49,33 +49,33 @@ describe('/threads endpoint', () => {
 
   describe('when POST /threads', () => {
     it('should response 401 when no authentication', async () => {
-        // Arrange
-        const requestPayload = {
-          title:'ini title',
-          body:'ini body'
-        };
+      // Arrange
+      const requestPayload = {
+        title: 'ini title',
+        body: 'ini body',
+      };
         // eslint-disable-next-line no-undef
-        const server = await createServer(container);
-  
-        // Action
-        const response = await server.inject({
-          method: 'POST',
-          url: '/threads',
-          payload: requestPayload,
-        });
-  
-        // Assert
-        const responseJson = JSON.parse(response.payload);
-        expect(response.statusCode).toEqual(401);
-        expect(responseJson.status).toEqual('fail');
-        expect(responseJson.message).toEqual('Missing authentication');
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: requestPayload,
       });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('Missing authentication');
+    });
 
     it('should response 201 and persisted thread', async () => {
       // Arrange
       const requestPayload = {
-        title:'ini title',
-        body:'ini body'
+        title: 'ini title',
+        body: 'ini body',
       };
       const server = await createServer(container);
 
@@ -84,9 +84,9 @@ describe('/threads endpoint', () => {
         method: 'POST',
         url: '/threads',
         payload: requestPayload,
-        headers:{
-          'Authorization' : 'Bearer '+token
-        }
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       // Assert
@@ -99,7 +99,7 @@ describe('/threads endpoint', () => {
     it('should response 400 when request payload not contain needed property', async () => {
       // Arrange
       const requestPayload = {
-        title: 'Ini title'
+        title: 'Ini title',
       };
       const server = await createServer(container);
 
@@ -108,9 +108,9 @@ describe('/threads endpoint', () => {
         method: 'POST',
         url: '/threads',
         payload: requestPayload,
-        headers:{
-          'Authorization' : 'Bearer '+token
-        }
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       // Assert
@@ -124,9 +124,9 @@ describe('/threads endpoint', () => {
       // Arrange
       const requestPayload = {
         title: 'Ini title',
-        body: true
+        body: true,
       };
-      
+
       const server = await createServer(container);
 
       // Action
@@ -134,9 +134,9 @@ describe('/threads endpoint', () => {
         method: 'POST',
         url: '/threads',
         payload: requestPayload,
-        headers:{
-          'Authorization' : 'Bearer '+token
-        }
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       // Assert
@@ -148,15 +148,13 @@ describe('/threads endpoint', () => {
   });
 
   describe('when POST /threads/{threadId}/comments', () => {
-    
-
     it('should response 401 when no authentication', async () => {
       // Arrange
       const requestPayload = {
-        content:'ini komentar',
+        content: 'ini komentar',
       };
-      await UsersTableTestHelper.addUser({id:'user-123',username:'lingjul'});
-      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'lingjul' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
       const threadId = 'thread-123';
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
@@ -177,10 +175,10 @@ describe('/threads endpoint', () => {
     it('should response 404 when thread not found', async () => {
       // Arrange
       const requestPayload = {
-        content:'ini komentar',
+        content: 'ini komentar',
       };
-      await UsersTableTestHelper.addUser({id:'user-123',username:'lingjul'});
-      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'lingjul' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
       // Action
@@ -188,9 +186,9 @@ describe('/threads endpoint', () => {
         method: 'POST',
         url: '/threads/xxx/comments',
         payload: requestPayload,
-        headers:{
-          'Authorization' : 'Bearer '+token
-        }
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       // Assert
@@ -203,8 +201,8 @@ describe('/threads endpoint', () => {
     it('should response 400 when payload invalid', async () => {
       // Arrange
       const requestPayload = {};
-      await UsersTableTestHelper.addUser({id:'user-123',username:'lingjul'});
-      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'lingjul' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
       const threadId = 'thread-123';
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
@@ -213,9 +211,9 @@ describe('/threads endpoint', () => {
         method: 'POST',
         url: `/threads/${threadId}/comments`,
         payload: requestPayload,
-        headers:{
-          'Authorization' : 'Bearer '+token
-        }
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       // Assert
@@ -228,10 +226,10 @@ describe('/threads endpoint', () => {
     it('should response 201 when added comment', async () => {
       // Arrange
       const requestPayload = {
-        content:'ini komentar',
+        content: 'ini komentar',
       };
-      await UsersTableTestHelper.addUser({id:'user-123',username:'lingjul'});
-      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'lingjul' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
       const threadId = 'thread-123';
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
@@ -240,9 +238,9 @@ describe('/threads endpoint', () => {
         method: 'POST',
         url: `/threads/${threadId}/comments`,
         payload: requestPayload,
-        headers:{
-          'Authorization' : 'Bearer '+token
-        }
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       // Assert
@@ -254,21 +252,21 @@ describe('/threads endpoint', () => {
   });
 
   describe('when GET /threads/{threadId}', () => {
-    it('should response 200 when get thread',async () => {
-      //arrange
-      await UsersTableTestHelper.addUser({id:'user-123',username:'lingjul'});
-      await ThreadsTableTestHelper.addThread({id:'thread-123'});
-      await CommentsTableTestHelper.addComment({id:'comment-123'});
+    it('should response 200 when get thread', async () => {
+      // arrange
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'lingjul' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123' });
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
 
-      //action
+      // action
       const response = await server.inject({
         method: 'GET',
-        url: `/threads/thread-123`
+        url: '/threads/thread-123',
       });
 
-      //assert
+      // assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual('success');
@@ -277,102 +275,103 @@ describe('/threads endpoint', () => {
   });
 
   describe('when DELETE /threads/{threadId}/comments/{commentId}', () => {
-
-    it('should response 401 when no authentication',async () => {
-      //arrange
-      await UsersTableTestHelper.addUser({ id:'user-123',username:'lingjul' });
-      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+    it('should response 401 when no authentication', async () => {
+      // arrange
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'lingjul' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
       const threadId = 'thread-123';
-      await CommentsTableTestHelper.addComment({id:'comment-123',threadId:'thread-123'});
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123' });
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
 
-      //action
+      // action
       const response = await server.inject({
         method: 'DELETE',
         url: `/threads/${threadId}/comments/comment-123`,
-        headers:{
-          'Authorization' : 'Bearer '+token
-        }
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      //assert
+      // assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(403);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).not.toEqual('');
     });
 
-    it('should response 403 when wrong owner',async () => {
-      //arrange
-      await UsersTableTestHelper.addUser({ id:'user-123',username:'lingjul' });
-      await ThreadsTableTestHelper.addThread({id:'thread-123'});
+    it('should response 403 when wrong owner', async () => {
+      // arrange
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'lingjul' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
       const threadId = 'thread-123';
-      await CommentsTableTestHelper.addComment({id:'comment-123',threadId:threadId});
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId });
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
 
-      //action
+      // action
       const response = await server.inject({
         method: 'DELETE',
         url: `/threads/${threadId}/comments/comment-123`,
-        headers:{
-          'Authorization' : 'Bearer '+token
-        }
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      //assert
+      // assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(403);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).not.toEqual('');
     });
 
-    it('should response 404 when comment not found',async () => {
-      //arrange
+    it('should response 404 when comment not found', async () => {
+      // arrange
       // await UsersTableTestHelper.addUser({ id:'user-123',username:'lingjul' });
-      const decodedToken = await container.getInstance(AuthenticationTokenManager.name).decodePayload(token);
-      await ThreadsTableTestHelper.addThread({id:'thread-123',userId:decodedToken.id});
+      const decodedToken = await container.getInstance(AuthenticationTokenManager.name)
+        .decodePayload(token);
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: decodedToken.id });
       const threadId = 'thread-123';
-      await CommentsTableTestHelper.addComment({id:'comment-123',userId:decodedToken.id,threadId:threadId});
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', userId: decodedToken.id, threadId });
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
 
-      //action
+      // action
       const response = await server.inject({
         method: 'DELETE',
         url: `/threads/${threadId}/comments/comment-1234`,
-        headers:{
-          'Authorization' : 'Bearer '+token
-        }
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      //assert
+      // assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(404);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).not.toEqual('');
     });
 
-    it('should response 200 when delete thread',async () => {
-      //arrange
-      const decodedToken = await container.getInstance(AuthenticationTokenManager.name).decodePayload(token);
-      await ThreadsTableTestHelper.addThread({id:'thread-123',userId:decodedToken.id});
+    it('should response 200 when delete thread', async () => {
+      // arrange
+      const decodedToken = await container.getInstance(AuthenticationTokenManager.name)
+        .decodePayload(token);
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: decodedToken.id });
       const threadId = 'thread-123';
-      await CommentsTableTestHelper.addComment({id:'comment-123',userId:decodedToken.id,threadId:threadId});
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', userId: decodedToken.id, threadId });
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
 
-      //action
+      // action
       const response = await server.inject({
         method: 'DELETE',
         url: `/threads/${threadId}/comments/comment-123`,
-        headers:{
-          'Authorization' : 'Bearer '+token
-        }
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      //assert
+      // assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual('success');
