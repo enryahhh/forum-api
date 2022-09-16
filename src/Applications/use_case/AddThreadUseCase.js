@@ -6,11 +6,10 @@ class AddThreadUseCase {
     }
   
     async execute(useCasePayload) {
-      // const { title, body } = useCasePayload;
-      const newThread = new NewThread(useCasePayload.useCasePayload,useCasePayload.auth);
-      const result = await this._threadRepository.addThread(newThread);
+      const newThread = new NewThread(useCasePayload.useCasePayload);
+      const userId = useCasePayload.id;
+      const result = await this._threadRepository.addThread({...newThread,userId});
       return result;
-      // return await this._threadRepository.addThread(newThread);
     }
   
   }

@@ -29,10 +29,10 @@ describe('ThreadRepository postgres', () => {
       const userId = await userRepositoryPostgres.getIdByUsername('dicoding');
 
       const threadRepository = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
-      const newThread = new NewThread({title:'ini title', body:'ini body'},{id:userId});
+      const newThread = new NewThread({title:'ini title', body:'ini body'});
 
       // Action
-      const result = await threadRepository.addThread(newThread);
+      const result = await threadRepository.addThread({...newThread,userId});
 
       // Assert
       const addedThread = result;

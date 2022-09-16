@@ -32,8 +32,8 @@ describe('CommentRepositoryPostgres', () => {
       // tambah thread
       const threadRepository = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
       const userId = await userRepositoryPostgres.getIdByUsername('dicoding');
-      const newThread = new NewThread({title:'ini title', body:'ini body'},{id:userId});
-      const thread = await threadRepository.addThread(newThread);
+      const newThread = new NewThread({title:'ini title', body:'ini body'});
+      const thread = await threadRepository.addThread({...newThread,userId});
       const threadId = thread.id;
       // arrange komentar
       const newComment = new NewComment({content:'ini komentar'});

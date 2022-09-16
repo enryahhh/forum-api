@@ -1,11 +1,9 @@
-const AuthenticationRepository = require('../../../Domains/authentications/AuthenticationRepository');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const AddThreadUseCase = require('../AddThreadUseCase');
 
 describe('AddThreadUseCase', () => {
     it('should orchestrating the add thread action correctly', async () => {
-        const auth = { id:'user-123' };
         const useCasePayload = {
             title: 'title',
             body: 'ini body',
@@ -15,8 +13,6 @@ describe('AddThreadUseCase', () => {
           const expectedThread = new NewThread({
             title: useCasePayload.title,
             body: useCasePayload.body,
-          },{
-            id:auth.id
           });
 
           /** creating dependency of use case */
@@ -28,15 +24,13 @@ describe('AddThreadUseCase', () => {
             const getAddThreadUseCase = new AddThreadUseCase({
                 threadRepository: mockThreadRepository,
             });
-            const actualAddThread = await getAddThreadUseCase.execute({useCasePayload,auth});
+            const actualAddThread = await getAddThreadUseCase.execute({useCasePayload});
 
             expect(actualAddThread).toEqual(expectedThread);
             expect(mockThreadRepository.addThread)
             .toBeCalledWith(new NewThread({
                 title: useCasePayload.title,
                 body: useCasePayload.body,
-              },{
-                id:auth.id
               }));
 
     });

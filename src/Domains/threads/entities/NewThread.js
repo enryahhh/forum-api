@@ -1,19 +1,9 @@
 class NewThread {
-    constructor(payload, auth) {
-      this._verifyAuth(auth);
+    constructor(payload) {
       this._verifyPayload(payload);
   
       this.title = payload.title;
       this.body = payload.body;
-      this.userId = auth.id;
-    }
-
-    _verifyAuth(auth) {
-        const { id } = auth;
-
-        if(!id) {
-            throw new Error('NEW_THREAD.NOT_DOING_AUTHENTICATION');
-        }
     }
   
     _verifyPayload(payload) {
