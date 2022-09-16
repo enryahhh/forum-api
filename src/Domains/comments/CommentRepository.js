@@ -1,8 +1,4 @@
 class CommentRepository {
-    async verifyAuth(auth) {
-        throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    }
-    
     async verifyOwner(owner) {
         throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     }
