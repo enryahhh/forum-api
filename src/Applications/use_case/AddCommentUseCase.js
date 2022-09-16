@@ -12,7 +12,7 @@ class AddCommentUseCase {
     const newComment = new NewComment({ content });
     // eslint-disable-next-line no-param-reassign
     useCasePayload.content = newComment.content;
-    await this._threadRepository.findThreadById(threadId);
+    await this._threadRepository.verifyThreadAvailability(threadId);
     const result = await this._commentRepository.addComment(useCasePayload);
     return result;
   }

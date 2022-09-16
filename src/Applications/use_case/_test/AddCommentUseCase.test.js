@@ -17,11 +17,11 @@ describe('AddCommentUseCase', () => {
     const mockCommentRepository = new CommentRepository();
     const mockThreadRepository = new ThreadRepository();
 
-    mockThreadRepository.findThreadById = jest.fn()
+    mockThreadRepository.verifyThreadAvailability = jest.fn()
       .mockImplementation(() => Promise.resolve('thread-123'));
 
     mockCommentRepository.addComment = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedComment));
+      .mockImplementation(() => Promise.resolve({ content: 'ini komentar' }));
 
     /** creating use case instance */
     const getAddCommentUseCase = new AddCommentUseCase({

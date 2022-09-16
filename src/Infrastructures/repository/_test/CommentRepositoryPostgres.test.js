@@ -22,7 +22,32 @@ describe('CommentRepositoryPostgres', () => {
   });
 
   describe('addComment function', () => {
-    it('should return comment data correctly after add', async () => {
+    it('should return comment data after add', async () => {
+      // Arrange
+      // tambah user
+      await UsersTableTestHelper.addUser({ id: 'user-321', username: 'dicoding' });
+      const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
+      const fakeIdGenerator = () => '123'; // stub!
+
+      // tambah thread
+      const threadRepository = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
+      const userId = await userRepositoryPostgres.getIdByUsername('dicoding');
+      const newThread = new NewThread({ title: 'ini title', body: 'ini body' });
+      const thread = await threadRepository.addThread({ ...newThread, userId });
+      const threadId = thread.id;
+      // arrange komentar
+      const newComment = new NewComment({ content: 'ini komentar' });
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+
+      // Action
+      await commentRepositoryPostgres
+        .addComment({ ...newComment, threadId, userId });
+      const comment = await CommentsTableTestHelper.findCommentById('comment-123');
+
+      // Assert
+      expect(comment).toHaveLength(1);
+    });
+    it('should return comment data correctly', async () => {
       // Arrange
       // tambah user
       await UsersTableTestHelper.addUser({ id: 'user-321', username: 'dicoding' });

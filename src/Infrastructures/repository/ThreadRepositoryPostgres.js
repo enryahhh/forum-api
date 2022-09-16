@@ -22,7 +22,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     return result.rows[0];
   }
 
-  async findThreadById(threadId) {
+  async verifyThreadAvailability(threadId) {
     const query = {
       text: `SELECT threads.id,threads.title,threads.body,threads.created_at AS date, users.username 
                  FROM threads JOIN users ON threads.user_id = users.id WHERE threads.id = $1`,

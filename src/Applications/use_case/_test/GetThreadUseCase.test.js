@@ -8,7 +8,7 @@ describe('GetThreadUseCase', () => {
     const mockCommentRepository = new CommentRepository();
     const mockThreadRepository = new ThreadRepository();
 
-    mockThreadRepository.findThreadById = jest.fn()
+    mockThreadRepository.verifyThreadAvailability = jest.fn()
       .mockImplementation(() => Promise.resolve({
         id: 'thread-123',
         title: 'sebuah thread',
@@ -48,7 +48,7 @@ describe('GetThreadUseCase', () => {
         }],
       },
     });
-    expect(mockThreadRepository.findThreadById)
+    expect(mockThreadRepository.verifyThreadAvailability)
       .toBeCalledWith('thread-123');
     expect(mockCommentRepository.findCommentByThread)
       .toBeCalledWith('thread-123');
