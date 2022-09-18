@@ -6,7 +6,8 @@ class GetThreadUseCase {
 
   async execute(params) {
     const threadId = params;
-    const threadresult = await this._threadRepository.verifyThreadAvailability(threadId);
+    await this._threadRepository.verifyThreadAvailability(threadId);
+    const threadresult = await this._threadRepository.getThreadById(threadId);
     const comments = await this._commentRepository.findCommentByThread(threadId);
     const thread = {
       ...threadresult,

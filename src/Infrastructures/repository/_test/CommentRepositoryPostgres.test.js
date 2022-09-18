@@ -1,3 +1,4 @@
+/* eslint-disable no-sparse-arrays */
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
@@ -90,6 +91,20 @@ describe('CommentRepositoryPostgres', () => {
       const comments = await commentRepositoryPostgres.findCommentByThread('thread-123');
       // Assert
       expect(comments).toHaveLength(2);
+      expect(comments).toStrictEqual([
+        {
+          id: 'comment-123',
+          username: 'dicoding',
+          date: '2022-09-18T08:26:42.288Z',
+          content: 'ini komentar',
+        },
+        {
+          id: 'comment-124',
+          username: 'dicoding',
+          date: '2022-09-18T08:26:42.288Z',
+          content: 'ini komentar',
+        },
+      ]);
     });
   });
 
@@ -131,10 +146,13 @@ describe('CommentRepositoryPostgres', () => {
       const params = { id: 'comment-123', threadId: 'thread-123' };
 
       // Action
-      const commentId = await commentRepositoryPostgres.deleteComment(params);
+      const result = await commentRepositoryPostgres.deleteComment(params);
+      const commentId = result.id;
+      const isDeleted = result.is_deleted;
 
       // Assert
       expect(commentId).toEqual('comment-123');
+      expect(isDeleted).toEqual(true);
     });
   });
 });
