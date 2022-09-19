@@ -1,7 +1,6 @@
 const NewComment = require('../NewComment');
 
 describe('NewComment entities', () => {
-
   it('should throw error when payload not contain needed property', () => {
     // Arrange
     const payload = {};
@@ -13,8 +12,8 @@ describe('NewComment entities', () => {
   it('should throw error when payload not meet data type specification', () => {
     // Arrange
     const payload = {
-        content:true
-      };
+      content: true,
+    };
 
     // Action & Assert
     expect(() => new NewComment(payload)).toThrowError('NEW_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
@@ -23,8 +22,8 @@ describe('NewComment entities', () => {
   it('should create NewComment entities correctly', () => {
     // Arrange
     const payload = {
-        content: 'ini komentar',
-      };
+      content: 'ini komentar',
+    };
 
     // Action
     const newComment = new NewComment(payload);

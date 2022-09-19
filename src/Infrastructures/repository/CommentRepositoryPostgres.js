@@ -27,7 +27,7 @@ class CommentRepositoryPostgres extends CommentRepository {
   async findCommentByThread(threadId) {
     const query = {
       text: `SELECT comments.id,users.username,comments.created_at AS date,CASE WHEN comments.is_deleted=true THEN '**komentar telah dihapus**' ELSE comments.content END AS content 
-                 FROM comments JOIN users ON comments.user_id = users.id WHERE comments.thread_id = $1 ORDER BY comments.id ASC `,
+                 FROM comments JOIN users ON comments.user_id = users.id WHERE comments.thread_id = $1 ORDER BY date ASC`,
       values: [threadId],
     };
 
@@ -38,7 +38,7 @@ class CommentRepositoryPostgres extends CommentRepository {
   async deleteComment(params) {
     const { id, threadId } = params;
     const query = {
-      text: 'UPDATE comments SET is_deleted = TRUE WHERE id = $1 AND thread_id = $2 RETURNING id,is_deleted',
+      text: 'UPDATE comments SET is_deleted = TRUE WHERE id = $1 AND thread_id = $2 RETURNING id',
       values: [id, threadId],
     };
 
@@ -46,7 +46,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     if (!result.rowCount) {
       throw new NotFoundError('Gagal hapus. Komentar tidak ditemukan');
     }
-    return result.rows[0];
+    return result.rows[0].id;
   }
 
   async verifyOwner(params) {

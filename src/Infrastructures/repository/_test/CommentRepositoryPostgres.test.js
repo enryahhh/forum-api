@@ -84,7 +84,7 @@ describe('CommentRepositoryPostgres', () => {
       await UsersTableTestHelper.addUser({ id: 'user-123', username: 'dicoding' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-123' });
-      await CommentsTableTestHelper.addComment({ id: 'comment-124' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-124', createdAt: '2022-09-18T08:26:43.288Z' });
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action
@@ -101,7 +101,7 @@ describe('CommentRepositoryPostgres', () => {
         {
           id: 'comment-124',
           username: 'dicoding',
-          date: '2022-09-18T08:26:42.288Z',
+          date: '2022-09-18T08:26:43.288Z',
           content: 'ini komentar',
         },
       ]);
@@ -146,13 +146,11 @@ describe('CommentRepositoryPostgres', () => {
       const params = { id: 'comment-123', threadId: 'thread-123' };
 
       // Action
-      const result = await commentRepositoryPostgres.deleteComment(params);
-      const commentId = result.id;
-      const isDeleted = result.is_deleted;
-
+      const commentId = await commentRepositoryPostgres.deleteComment(params);
+      const comment = await CommentsTableTestHelper.findCommentById(params.id);
       // Assert
       expect(commentId).toEqual('comment-123');
-      expect(isDeleted).toEqual(true);
+      expect(comment[0].is_deleted).toEqual(true);
     });
   });
 });
